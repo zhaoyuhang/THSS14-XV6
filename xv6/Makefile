@@ -248,6 +248,7 @@ UPROGS=\
 	_zip\
 	_clist\
 	_week\
+	_mvall\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt bar.bmp bar2.bmp flower.bmp close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp
@@ -322,7 +323,7 @@ EXTRA=\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 	touch.c cp.c uptime.c mv.c editor.c script.c cal.c\
-	cf.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c maf.c\
+	cf.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c maf.c mvall.c\
 
 dist:
 	rm -rf dist
