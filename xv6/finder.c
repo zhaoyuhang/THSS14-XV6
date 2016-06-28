@@ -11,6 +11,7 @@
 #include "clickable.h"
 #include "fcntl.h"
 
+
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 450
 
@@ -69,7 +70,7 @@ struct keyContent {
 void textEditor_init(char *fileName)
 {
     int pid;
-    char* editor_argv[] = { "textEditor_gui", fileName};
+    char* editor_argv[] = { "txtEditor_gui", fileName};
 
     printf(1, "init textEditor: starting editor\n");
     pid = fork();
@@ -367,11 +368,15 @@ void list(char *path) {
 // 绘图函数相关操作
 struct Icon contentRes[] = { { "file_icon_big.bmp", 0, 0 }, {
 		"file_icon_small.bmp", 0, 0 }, { "folder_icon_big.bmp", 0, 0 }, {
-		"folder_icon_small.bmp", 0, 0 }, };
+		"folder_icon_small.bmp", 0, 0 }, { "music_icon_big.bmp", 0, 0 }, { "music_icon_small.bmp", 0, 0 }, { "pic_icon_big.bmp", 0, 0 }, { "pic_icon_small.bmp", 0, 0 }};
 #define FILE_ICON_BIG 0
 #define FILE_ICON_SMALL 1
 #define FOLDER_ICON_BIG 2
 #define FOLDER_ICON_SMALL 3
+#define MUSIC_ICON_BIG 4
+#define MUSIC_ICON_SMALL 5
+#define PIC_ICON_BIG 6
+#define PIC_ICON_SMALL 7
 
 void drawItem(Context context, char *name, struct stat st, Rect rect, int chosen) {
 	//cprintf("draw finder Item: type=%d counter=%d\n", type, n);
@@ -379,25 +384,42 @@ void drawItem(Context context, char *name, struct stat st, Rect rect, int chosen
 	if (chosen == 0)
 		nameColor = 0x0;
 //<<<<<<< HEAD
-	else if (chosen == 1)
+	else if (chosen == 1 && rect.start.y >= 0)//avoid blue screen
 //=======
 //	else
 //>>>>>>> GUITeam1
 	{
-		nameColor = 0xFFFF;
+		nameColor = 0xFF66;
 		fill_rect(context, rect.start.x, rect.start.y, rect.width, rect.height, 0x2110);
-	} else
+	} else if (rect.start.y >= 0)
 	{
-		nameColor = 0xFFFF;
+		nameColor = 0xFF66;
 		fill_rect(context, rect.start.x, rect.start.y, rect.width, rect.height, 0);
 	}
 	if (style == ICON_STYLE) {
 		switch (st.type) {
-		case T_FILE:
-			draw_picture(context, contentRes[FILE_ICON_BIG].pic,
+		case T_FILE:{
+			int namelength;
+			namelength = strlen(name);
+			if ((namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'b' && name[namelength - 2] == 'm' && name[namelength - 1] == 'p') || (namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'j' && name[namelength - 2] == 'p' && name[namelength - 1] == 'g'))
+			{
+				draw_picture(context, contentRes[PIC_ICON_BIG].pic,
 					rect.start.x + ICON_ITEM_OFFSET_X,
 					rect.start.y + ICON_ITEM_OFFSET_Y);
-			break;
+			}
+			else if ((namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'w' && name[namelength - 2] == 'a' && name[namelength - 1] == 'v') || (namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'm' && name[namelength - 2] == 'p' && name[namelength - 1] == '3'))
+			{
+				draw_picture(context, contentRes[MUSIC_ICON_BIG].pic,
+					rect.start.x + ICON_ITEM_OFFSET_X,
+					rect.start.y + ICON_ITEM_OFFSET_Y);
+			}
+			else
+			{
+				draw_picture(context, contentRes[FILE_ICON_BIG].pic,
+					rect.start.x + ICON_ITEM_OFFSET_X,
+					rect.start.y + ICON_ITEM_OFFSET_Y);
+			}
+			break;}
 		case T_DIR:
 			draw_picture(context, contentRes[FOLDER_ICON_BIG].pic,
 					rect.start.x + ICON_ITEM_OFFSET_X,
@@ -413,14 +435,32 @@ void drawItem(Context context, char *name, struct stat st, Rect rect, int chosen
 				rect.start.y + ICON_ITEM_OFFSET_Y + ICON_HEIGHT_BIG + 10);
 	} else {
 		switch (st.type) {
-		case T_FILE:
-			draw_picture(context, contentRes[FILE_ICON_SMALL].pic,
-					rect.start.x + LIST_ITEM_OFFSET_X, rect.start.y + LIST_ITEM_OFFSET_Y);
+		case T_FILE:{
+			int namelength;
+			namelength = strlen(name);
+			if ((namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'b' && name[namelength - 2] == 'm' && name[namelength - 1] == 'p') || (namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'j' && name[namelength - 2] == 'p' && name[namelength - 1] == 'g'))
+			{
+				draw_picture(context, contentRes[PIC_ICON_SMALL].pic,
+					rect.start.x + LIST_ITEM_OFFSET_X,
+					rect.start.y + LIST_ITEM_OFFSET_Y);
+			}
+			else if ((namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'w' && name[namelength - 2] == 'a' && name[namelength - 1] == 'v') || (namelength >= 4 && name[namelength - 4] == '.' && name[namelength - 3] == 'm' && name[namelength - 2] == 'p' && name[namelength - 1] == '3'))
+			{
+				draw_picture(context, contentRes[MUSIC_ICON_SMALL].pic,
+					rect.start.x + LIST_ITEM_OFFSET_X,
+					rect.start.y + LIST_ITEM_OFFSET_Y);
+			}
+			else
+			{
+				draw_picture(context, contentRes[FILE_ICON_SMALL].pic,
+					rect.start.x + LIST_ITEM_OFFSET_X,
+					rect.start.y + LIST_ITEM_OFFSET_Y);
+			}
 			char *size;
 			size = sizeFormat(st.size);
 			puts_str(context, size, nameColor, rect.start.x + LIST_ITEM_SIZE,
 					rect.start.y + LIST_ITEM_OFFSET_Y);
-			break;
+			break;}
 		case T_DIR:
 			draw_picture(context, contentRes[FOLDER_ICON_SMALL].pic,
 					rect.start.x + LIST_ITEM_OFFSET_X, rect.start.y + LIST_ITEM_OFFSET_Y);
@@ -568,6 +608,7 @@ void drawFinderContent(Context context) {
 		while (p != 0) {
 			//printf(0, "draw item\n");
 			drawItem(context, p->name, p->st, p->pos, p->chosen);
+			//printf(1, "loop\n");
 			p = p->next;
 		}
 	// }
@@ -709,7 +750,10 @@ void h_fileSortByName(Point p) {
 }
 
 void h_searchbox(Point p) {
-	isSearching = 1;
+	if(isSearching == 1)
+		isSearching = 0;
+	else
+		isSearching = 1;
 }
 
 void scrollList(int offset) {
@@ -865,20 +909,36 @@ void newFile(char *name) {
 	int fd;
 	int n = strlen(name);
 	int baseLen = 8;
-	int counter;
+	int counter = 0;
 	while ((fd = open(name, 0)) > 0)
 	{
 		n = strlen(name);
+		name[n - 4] = 0;
+		name[n - 3] = 0;
+		name[n - 2] = 0;
+		name[n - 1] = 0;
 		if (n == baseLen)
 		{
 			counter = 1;
 		}
 		else
 		{
-			counter = atoi(&name[baseLen]);
+			counter = atoi(&name[4]);
 			counter ++;
 		}
-		strcpy(&name[baseLen], int2str(counter));
+		int sali = 4;
+		for (sali = 4; sali <= 31; sali++)
+		{
+			name[sali] = 0;
+		}
+		strcpy(&name[baseLen - 4], int2str(counter));
+		int templength = strlen(name);
+		name[templength] = '.';
+		name[templength + 1] = 't';
+		name[templength + 2] = 'x';
+		name[templength + 3] = 't';
+		name[templength + 4] = 0;
+		//printf(0, "loop: %d         name: %s\n", counter, name);
 		close(fd);
 	}
 	if ((fd = open(name, O_CREATE)) < 0) {
@@ -1011,6 +1071,7 @@ void saveRename(){
 	char tempName[MAX_NAME_LEN];
 	char tempNameFrom[MAX_NAME_LEN];
 	int i;
+	int flag = 0;
 	strcpy(tempNameFrom, currentPath);
 	strcpy(tempName, currentlyRenaming->name);
 	strcpy(tempNameFrom + strlen(tempNameFrom), renameFrom);
@@ -1018,14 +1079,16 @@ void saveRename(){
 	if(currentlyRenaming->st.type != T_DIR){
 		for(i = 0; i < strlen(tempName); i++){
 			if(tempName[i] == '.'){
-				if(pasteJustFile(tempNameFrom, tempName)){
-					deleteFile(tempNameFrom);
-					return;
-				}
+
+				flag = 1;
+				break;
 			}
 		}
-		tempName[i] = '.';
-		tempName[i + 1] = 0;
+		if (flag == 0)
+		{
+			tempName[i] = '.';
+			tempName[i + 1] = 0;
+		}
 	}
 	printf(0, "renameFrom is %s\n", tempNameFrom);
 	if(pasteJustFile(tempNameFrom, tempName))
@@ -1374,10 +1437,9 @@ int main(int argc, char *argv[]) {
 			//printf(0, "update event!\n");
 
 			printf(1, "msg_detail %d\n", msg.msg_detail);
-			drawFinderWnd(context);
-			drawFinderContent(context);
+			drawFinderContent(context);//
+			drawFinderWnd(context);//exchange the position of the two lines to avoid the bug
 			updateWindow(winid, context.addr, msg.msg_detail);
-
 			break;
 		case MSG_PARTIAL_UPDATE:
 			updatePartialWindow(winid, context.addr,
@@ -1393,7 +1455,7 @@ int main(int argc, char *argv[]) {
 
 			// if (executeHandler(cm.left_click, p)) {
 			// 	updateWindow(winid, context.addr);
-			// }
+			// 
 			if(renaming == 1){
 				unrename();
 				updateWindow(winid, context.addr, msg.msg_detail);
@@ -1449,6 +1511,26 @@ int main(int argc, char *argv[]) {
 				drawFinderContent(context);
 				drawFinderWnd(context);
 				updateWindow(winid, context.addr, msg.msg_detail);
+			}
+			if (!isSearching && !renaming) {
+				if (key == '9') {
+					scrollUp();
+					drawFinderContent(context);
+					drawFinderWnd(context);
+					deleteClickable(&cm.left_click, initRect(0, 0, 800, 600));
+					addWndEvent(&cm);
+					addListEvent(&cm);
+					updateWindow(winid, context.addr, msg.msg_detail);
+				}
+				if (key == '3') {
+					scrollDown();
+					drawFinderContent(context);
+					drawFinderWnd(context);
+					deleteClickable(&cm.left_click, initRect(0, 0, 800, 600));
+					addWndEvent(&cm);
+					addListEvent(&cm);
+					updateWindow(winid, context.addr, msg.msg_detail);
+				}
 			}
 			break;
 		default:
