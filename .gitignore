@@ -1,3 +1,17 @@
+#xv6 exec
+*.tex 
+*.dvi 
+*.idx 
+*.aux 
+*.log 
+*.ind 
+*.ilg
+*.o 
+*.d 
+*.asm 
+*.sym
+
+
 # Object files
 *.o
 *.ko
