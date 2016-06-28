@@ -27,6 +27,7 @@ typedef struct Window
 {
 	int window_id;
 	int pid;
+        int appID;
 //	int activated;//是否激活，1表示激活，0表示未激活，某一时刻只能有一个窗口被激活
 //	char *window_title;//窗口标题栏字符串
 	Rect window_position;

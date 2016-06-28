@@ -23,6 +23,7 @@ typedef struct Clickable
 {
 	Rect area;
 	Handler handler;
+        int ID;
 	struct Clickable *next;
 } Clickable;
 

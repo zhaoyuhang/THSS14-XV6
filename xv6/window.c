@@ -37,6 +37,7 @@ WindowLink getActivated()
 WindowLink allocWindow(int left_x, int left_y, int right_x, int right_y, int pid)
 {
 	WindowLink p;
+        cprintf("pid:%d\n", pid);
 	for (p = window_array; p < &window_array[MAXWINDOW]; p++)
 	{
 		if (p->window_id <= 0)

@@ -1,3 +1,6 @@
+#ifndef MESSAGE_H
+#define MESSAGE_H
+
 #define MSG_NONE 0
 #define MSG_UNUSED 0
 #define MSG_MOVE 1
@@ -57,3 +60,5 @@ extern void msgqueueinit();
 extern void msgtableinit();
 extern void createUpdateMsg(int pid, int detail);
 extern void createPartialUpdateMsg(int pid, int x1, int y1, int x2, int y2);
+
+#endif
