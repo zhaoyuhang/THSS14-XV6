@@ -1,62 +1,4 @@
-/*
- * FileName: shell_gui.c
- * Author: Liu Tongtong
- * Date: 2015.01.23
- * Version: 2.0
- *
- * TODO:
- * 1. Add a cursor to the shell
- * 2. Support the arrow keys
- * 3. Support the text editor
- * 4. Support page scrolling
- *
- */
-
-#include "types.h"
-#include "stat.h"
-#include "user.h"
-#include "bitmap.h"
-#include "clickable.h"
-#include "context.h"
-#include "drawingAPI.h"
-#include "message.h"
-
-// Define the height of the header and footer
-// Define the width of the left and right border
-// The process of drawing is in drawingAPI.c
-#define HEADERHEIGHT 22
-#define FOOTERHEIGHT 22
-#define LEFTWIDTH 8
-#define RIGHTWIDTH 8
-
-// Define the width and height of a character
-#define CHARWIDTH 8
-#define CHARHEIGHT 20
-
-// Define the numbers of line and characters of per line
-#define CHARS 80
-#define LINES 20
-
-// Define the color of the background and characters
-#define BACKGROUNDCOLOR 0x0
-#define CHARCOLOR 0xffff
-
-// The buffer and indexes of the printer
-char printer_buf[LINES][CHARS];
-int line_index = 0;
-int char_index = 0;
-// If the screen is full
-int isFull = 0;
-int isRun = 1;
-
-// Define the max length of the command
-#define COMMANDMAXLEN 1024
-char write_cmd[COMMANDMAXLEN];
-int write_index = 0;
-
-// Define the size of the read buffer
-#define READBUFFERSIZE 1024
-char read_buf[READBUFFERSIZE];
+#include "shell_gui.h"
 
 // Initialize the buffer of the printer
 void
@@ -66,14 +8,54 @@ init_printer()
     for (i = 0; i < LINES; i++) {
         memset(printer_buf[i], 0, sizeof(char) * CHARS);
     }
+    for (i = 0; i < 10 * LINES; i++) {
+        memset(printer_buf_his[i], 0, sizeof(char) * CHARS);
+    }
 }
 
 // Clean the screen
 void
-clean_printer(struct Context context)
+clean_printer(struct Context context, int draw)
 {
     fill_rect(context, 0, HEADERHEIGHT, context.width,
             context.height - HEADERHEIGHT - FOOTERHEIGHT, BACKGROUNDCOLOR);
+    if (!draw)
+    {
+        return;
+    }
+    if (!isFull)
+    {
+        fill_rect(context, CHARWIDTH * (char_index + 1), HEADERHEIGHT + CHARHEIGHT * (line_index + 0), CHARWIDTH,
+            CHARHEIGHT, CHARCOLOR);
+    }
+    else
+    {
+        fill_rect(context, CHARWIDTH * (char_index + 1), HEADERHEIGHT + CHARHEIGHT * (LINES - 1), CHARWIDTH,
+            CHARHEIGHT, CHARCOLOR);
+    }
+
+}
+// Clean the line
+void
+cleanline_printer(struct Context context, int line, int draw)
+{
+    fill_rect(context, 0, HEADERHEIGHT + line * CHARHEIGHT, 
+        context.width, CHARHEIGHT, BACKGROUNDCOLOR);
+    if (!draw)
+    {
+        return;
+    }
+    if (!isFull)
+    {
+        fill_rect(context, CHARWIDTH * (char_index + 1), HEADERHEIGHT + CHARHEIGHT * (line_index + 0), CHARWIDTH,
+            CHARHEIGHT, CHARCOLOR);
+    }
+    else
+    {
+        fill_rect(context, CHARWIDTH * (char_index + 1), HEADERHEIGHT + CHARHEIGHT * (LINES - 1), CHARWIDTH,
+            CHARHEIGHT, CHARCOLOR);
+    }
+
 }
 
 // Load the read_buf(0..len-1) into the buffer
@@ -88,6 +70,7 @@ string_printer(struct Context context, char* read_buf, int len)
         for (i = 0; i > len; i--) {
             if (char_index > 0) {
                 printer_buf[line_index][--char_index] = 0;
+                printer_buf_his[linehis_index][--charhis_index] = 0;
             } else {
                 break;
             }
@@ -103,9 +86,18 @@ string_printer(struct Context context, char* read_buf, int len)
                     line_index = 0;
                 }
                 char_index = 0;
+                linehis_index++;
+                if (linehis_index >= 10 * LINES) {
+                    isHisFull = 1;
+                    linehis_index = 0;
+                }
+                charhis_index = 0;
                 memset(printer_buf[line_index], 0, sizeof(char) * CHARS);
+                memset(printer_buf_his[linehis_index], 0, sizeof(char) * CHARS);
+                
             } else {
                 printer_buf[line_index][char_index++] = read_buf[i];
+                printer_buf_his[linehis_index][charhis_index++] = read_buf[i];
                 if (char_index >= CHARS) {
                     line_index++;
                     if (line_index >= LINES) {
@@ -113,36 +105,76 @@ string_printer(struct Context context, char* read_buf, int len)
                         line_index = 0;
                     }
                     char_index = 0;
+                    linehis_index++;
+                    if (linehis_index >= 10 * LINES) {
+                        isHisFull = 1;
+                        linehis_index = 0;
+                    }
+                    charhis_index = 0;
                 }
             }
         }
     }
 
-    clean_printer(context);
+    clean_printer(context, 1);
     if (!isFull) {
         // The buffer isn't full.
         // Just print 0..line_index lines to the screen.
         for (i = 0; i <= line_index; i++) {
-            puts_str(context, printer_buf[i], CHARCOLOR,
+            if (i < line_index) {
+                puts_str(context, printer_buf[i], CHARCOLOR,
                     LEFTWIDTH, CHARHEIGHT * i + HEADERHEIGHT);
+            }
+            else {
+                int line_len = strlen(printer_buf[i]);
+                int k;
+                for (k = 0; k < line_len; k++)
+                {
+                    if (k < line_len - 1)
+                    {
+                        put_str(context, printer_buf[i][k], CHARCOLOR,
+                            CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * i + HEADERHEIGHT);
+                    }
+                    else
+                    {
+                        put_str(context, printer_buf[i][k], CHARCOLOR,
+                            CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * i + HEADERHEIGHT);
+                    }
+                }
+            }
         }
     }
     else {
         // The buffer is full.
         // Print (line_index+1)..LINES, 0..line_index lines to the screen.
         for (i = (line_index + 1) % LINES, j = 0; j < LINES; i = (i + 1) % LINES, j++) {
-            puts_str(context, printer_buf[i], CHARCOLOR,
+            if (j < line_index - 1) {
+                puts_str(context, printer_buf[i], CHARCOLOR,
                     LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+            }
+            else {
+                int line_len = strlen(printer_buf[i]);
+                int k;
+                for (k = 0; k < line_len; k++)
+                {
+                    if (k < line_len - 1)
+                    {
+                        put_str(context, printer_buf[i][k], CHARCOLOR,
+                            CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                    else
+                    {
+                        put_str(context, printer_buf[i][k], CHARCOLOR,
+                            CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                }
+            }
         }
     }
+    curHisLine = linehis_index;
 }
 
-// Store the info of the window
-struct windowinfo {
-    int id;
-    struct Msg msg;
-    struct Context context;
-};
+
 
 // Initialize the windowinfo
 void
@@ -208,7 +240,7 @@ create_shell(int* p_pid, int* p_rfd, int* p_wfd)
 }
 
 // Initial the screen
-char init_string[] = "$ ";
+
 void
 init_screen(struct Context context, int rfd)
 {
@@ -218,6 +250,7 @@ init_screen(struct Context context, int rfd)
     init_printer();
     memset(write_cmd, 0, sizeof(char) * COMMANDMAXLEN);
     memset(read_buf, 0, sizeof(char) * READBUFFERSIZE);
+    memset(cmd_history, 0, sizeof(char) * 100 * COMMANDMAXLEN);
 
     // Print the initial string "$ "
     while (total < strlen(init_string)) {
@@ -232,17 +265,362 @@ init_screen(struct Context context, int rfd)
 void
 handle_keydown(struct Context context, char ch, int rfd, int wfd) {
     int n;
-
+    int k = 0;
+    int j;
     if (ch == 8) {
         // ch == 8 is delete. Delete the newest character.
         if (write_index > 0) {
             write_cmd[--write_index] = 0;
+            cur_write = write_index - 1;
             string_printer(context, 0, -1);
         }
         return;
     }
+    if (ch == '\t')
+    {
+        return;
+    }
+    //ch = (256 + ch) % 256;
+    int nch = ch + 256;
+    int line_len; // = strlen(printer_buf[i]);
+    if (nch == KEY_UP || nch == KEY_DN || nch == KEY_LF || nch == KEY_RT || nch == KEY_PGUP || nch == KEY_PGDN || nch == KEY_HOME || nch == KEY_END)
+    {
+        printf(0, "dd %d\n", ch);
 
+        switch (nch)
+        {
+            case KEY_HOME:
+            //printf(0, "get ");
+                clean_printer(context, 0);
+                if (!isHisFull && linehis_index < LINES)
+                {
+                    for (k = 0; k < linehis_index; k++)
+                    {
+                        puts_str(context, printer_buf_his[k], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else if (isHisFull)
+                {
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + linehis_index + 1) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else
+                {
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[k], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                break;
+            case KEY_END:
+                clean_printer(context, 0);
+                if (!isHisFull && linehis_index < LINES)
+                {
+                    for (k = 0; k < linehis_index; k++)
+                    {
+                        puts_str(context, printer_buf_his[k], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else if (isHisFull)
+                {
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + linehis_index - LINES) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else
+                {
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + linehis_index - LINES) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                break;
+            case KEY_PGUP:
+                if (curHisLine <= LINES)
+                {
+                    break;
+                }
+                clean_printer(context, 0);
+                if (!isHisFull && linehis_index < LINES)
+                {
+                    for (k = 0; k < linehis_index; k++)
+                    {
+                        puts_str(context, printer_buf_his[k], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else if (isHisFull)
+                {
+                    curHisLine = (curHisLine - LINES) % (10 * LINES);
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + curHisLine - LINES) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else
+                {
+                    if (curHisLine > LINES * 2)
+                    {
+                        curHisLine = curHisLine - LINES;
+                    }
+                    else
+                    {
+                        curHisLine = LINES;
+                    }
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + curHisLine - LINES) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                break;
+            case KEY_PGDN:
+                if (curHisLine == linehis_index)
+                {
+                    break;
+                }
+                clean_printer(context, 0);
+                if (!isHisFull && linehis_index < LINES)
+                {
+                    for (k = 0; k < linehis_index; k++)
+                    {
+                        puts_str(context, printer_buf_his[k], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else if (isHisFull)
+                {
+                    curHisLine = (curHisLine + LINES) % (10 * LINES);
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + curHisLine - LINES) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                else
+                {
+                    if (linehis_index - curHisLine >= LINES)
+                    {
+                        curHisLine = curHisLine + LINES;
+                    }
+                    else
+                    {
+                        curHisLine = linehis_index;
+                    }
+                    for (k = 0; k < LINES; k++)
+                    {
+                        puts_str(context, printer_buf_his[(k + curHisLine - LINES) % (10 * LINES)], CHARCOLOR,
+                            LEFTWIDTH, CHARHEIGHT * k + HEADERHEIGHT);
+                    }
+                }
+                break;
+            case KEY_RT:
+                if (cur_write >= write_index - 1)
+                {
+                    break;
+                }
+                cur_write++;
+                j = isFull ? (LINES - 1) : (line_index + 0);
+                cleanline_printer(context, j, 0);
+                line_len = strlen(write_cmd);
+                //puts_str(context, "$ ", CHARCOLOR,
+                //    LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 fill_rect(context, CHARWIDTH * (cur_write + 4), HEADERHEIGHT + CHARHEIGHT * (j + 0), 
+                    CHARWIDTH, CHARHEIGHT, CHARCOLOR);
+                 put_str(context, '$', CHARCOLOR,
+                             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 put_str(context, ' ', CHARCOLOR,
+                             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                for (k = 0; k < line_len; k++)
+                {
+                    if (k != cur_write + 1)
+                    {
+                        put_str(context, write_cmd[k], CHARCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                    else
+                    {
+                        put_str(context, write_cmd[k], BACKGROUNDCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                }
+               break;
+            case KEY_LF:
+                if (cur_write < 0)
+                {
+                    break;
+                }
+                cur_write--;
+                j = isFull ? (LINES - 1) : (line_index + 0);
+                cleanline_printer(context, j, 0);
+                line_len = strlen(write_cmd);
+                fill_rect(context, CHARWIDTH * (cur_write + 4), HEADERHEIGHT + CHARHEIGHT * (j + 0), 
+                    CHARWIDTH, CHARHEIGHT, CHARCOLOR);
+                 puts_str(context, "$ ", CHARCOLOR,
+                   LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 // put_str(context, '$', CHARCOLOR,
+                 //             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 // put_str(context, ' ', CHARCOLOR,
+                 //             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                for (k = 0; k < line_len; k++)
+                {
+                    if (k != cur_write + 1)
+                    {
+                        put_str(context, write_cmd[k], CHARCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                    else
+                    {
+                        put_str(context, write_cmd[k], BACKGROUNDCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                }
+                break;
+            case KEY_DN:
+                if (cur_his >= his_index)
+                {
+                    break;
+                }
+                cur_his++;
+                for (k = 0; k < COMMANDMAXLEN; k++)
+                {
+                    if (cmd_history[cur_his][k] == '\n')
+                    {
+                        write_index = k;
+                        cur_write = k - 1;
+                        while (k < COMMANDMAXLEN)
+                        {
+                            write_cmd[k] = 0;
+                            k++;
+                        }
+                        // k = 0;
+                        // while (k + char_index < CHARS)
+                        // {
+                        //     printer_buf[line_index][k+char_index] = 0;
+                        //     k++;
+                        // }
+                        break;
+                    }
+                    printer_buf[line_index][char_index] = cmd_history[cur_his][k];
+                    char_index++;
+                    // if (char_index >= CHARS) {
+                    //     line_index++;
+                    //     if (line_index >= LINES) {
+                    //         isFull = 1;
+                    //         line_index = 0;
+                    //     }
+                    //         char_index = 0;
+                    // }
+                    write_cmd[k] = cmd_history[cur_his][k];
+                }
+                j = isFull ? (LINES - 1) : (line_index + 0);
+                cleanline_printer(context, j, 0);
+                line_len = strlen(write_cmd);
+                 puts_str(context, "$ ", CHARCOLOR,
+                   LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 // put_str(context, '$', CHARCOLOR,
+                 //             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 // put_str(context, ' ', CHARCOLOR,
+                 //             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                for (k = 0; k < line_len; k++)
+                {
+                    if (k != write_index)
+                    {
+                        put_str(context, write_cmd[k], CHARCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                    else
+                    {
+                        put_str(context, write_cmd[k], CHARCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                }
+                break;
+            case KEY_UP:
+                if (cur_his < 0)
+                {
+                    break;
+                }
+                //cur_his--;
+                //printf(0, "blabla");
+                for (k = 0; k < COMMANDMAXLEN - 1; k++)
+                {
+                    if (cmd_history[cur_his][k] == '\n')
+                    {
+                        //printf(0, "aaaa");
+                        write_index = k;
+                        cur_write = k - 1;
+                        while (k < COMMANDMAXLEN)
+                        {
+                            write_cmd[k] = 0;
+                            k++;
+                        }
+                        // k = 0;
+                        // while (k + char_index < CHARS)
+                        // {
+                        //     printer_buf[line_index][k+char_index] = 0;
+                        //     k++;
+                        // }
+                        break;
+                    }
+                    printer_buf[line_index][char_index] = cmd_history[cur_his][k];
+                    char_index++;
+                    if (char_index >= CHARS) {
+                        line_index++;
+                        if (line_index >= LINES) {
+                            isFull = 1;
+                            line_index = 0;
+                        }
+                            char_index = 0;
+                    }
+                    write_cmd[k] = cmd_history[cur_his][k];
+                }
+                cur_his--;
+                j = isFull ? (LINES - 1) : (line_index + 0);
+                cleanline_printer(context, j, 0);
+                line_len = strlen(write_cmd);
+                 puts_str(context, "$ ", CHARCOLOR,
+                   LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 // put_str(context, '$', CHARCOLOR,
+                 //             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                 // put_str(context, ' ', CHARCOLOR,
+                 //             CHARWIDTH * k + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                for (k = 0; k < line_len; k++)
+                {
+                    if (k != write_index)
+                    {
+                        put_str(context, write_cmd[k], CHARCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                    else
+                    {
+                        put_str(context, write_cmd[k], CHARCOLOR,
+                            CHARWIDTH * (k + 2) + LEFTWIDTH, CHARHEIGHT * j + HEADERHEIGHT);
+                    }
+                }
+                break;
+            default:
+                printf(0, "unknown error");
+                break;
+        }
+        //string_printer(context, &ch, 0);
+
+        return;
+    }
+
+    printf(0, "%d\n", ch);
     // append the ch to the command and display the command
+    cur_write = write_index;
     write_cmd[write_index++] = ch;
     string_printer(context, &ch, 1);
 
@@ -266,9 +644,21 @@ handle_keydown(struct Context context, char ch, int rfd, int wfd) {
                 }
             }
         }
+        his_index++;
+        if (his_index >= 100)
+        {
+            his_index = 0;
+        }
+        cur_his = his_index;
+        //int k = 0;
+        for (k = 0; k < COMMANDMAXLEN; k++)
+        {
+            cmd_history[his_index][k] = write_cmd[k];
+        }
         // Clean the write_cmd buffer
         memset(write_cmd, 0, sizeof(char) * COMMANDMAXLEN);
         write_index = 0;
+        cur_write = -1;
     }
 
     char toolongcmdhint[] = "\nThe command is too long!\n";
@@ -280,18 +670,13 @@ handle_keydown(struct Context context, char ch, int rfd, int wfd) {
         // Clean the write_cmd buffer
         memset(write_cmd, 0, sizeof(char) * COMMANDMAXLEN);
         write_index = 0;
+        cur_write = -1;
     }
 }
 
-// Use for the close button
-ClickableManager cm;
-Point p;
 void h_closeWnd(Point p) {
     isRun = 0;
 }
-
-Handler wndEvents[] = { h_closeWnd};
-struct Icon wndRes[] = { { "close.bmp", 3, 3 } };
 
 void addWndEvent(ClickableManager *cm) {
     int i;
