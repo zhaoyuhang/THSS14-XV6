@@ -81,8 +81,8 @@ AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
-#CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer
-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -Wall -MD -gdwarf-2 -m32 -fno-omit-frame-pointer
+#CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
+CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -Wall -MD -gdwarf-2 -m32 -Werror -fno-omit-frame-pointer
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 # FreeBSD ld wants ``elf_i386_fbsd''
@@ -193,7 +193,7 @@ _picviewer: picviewer.o $(GUILIB) $(ULIB)
 
 
 mkfs: mkfs.c fs.h
-	gcc -Wall -o mkfs mkfs.c
+	gcc -Werror -Wall -o mkfs mkfs.c
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.  More
@@ -237,9 +237,20 @@ UPROGS=\
 	_ren\
 	_splice\
 	_cal\
+	_maf\
+	_cf\
+	_date\
+	_game\
+	_head\
+	_rename\
+	_tac\
+	_tail\
+	_zip\
+	_clist\
+	_week\
 
 fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp
+	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt bar.bmp bar2.bmp flower.bmp close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp
 
 
 -include *.d
@@ -310,7 +321,8 @@ EXTRA=\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
-	touch.c cp.c uptime.c mv.c editor.c script.c cal.c\
+	touch.c cp.c uptime.c mv.c editor.c script.c cal.c maf.c\
+	cf.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c\
 
 dist:
 	rm -rf dist

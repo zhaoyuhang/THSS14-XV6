@@ -10,6 +10,51 @@ static int flag_caps = 0;
 static int flag_shift = 0;
 //static int flag = 0;
 
+void kbdintrb(void)
+{
+  static uint shift;
+  static uchar *charcode[4] = {
+    normalmap, shiftmap, ctlmap, ctlmap
+  };
+  uint st, data;
+  char c;
+
+  st = inb(KBSTATP);
+  if((st & KBS_DIB) == 0)
+     //createMsg(MSG_KEYDOWN, 0, 0, -1);
+    return;
+  data = inb(KBDATAP);
+
+  if(data == 0xE0){
+    shift |= E0ESC;
+     //createMsg(MSG_KEYDOWN, 0, 0, 0);
+    return;
+  } else if(data & 0x80){
+    // Key released
+    data = (shift & E0ESC ? data : data & 0x7F);
+    shift &= ~(shiftcode[data] | E0ESC);
+   //  createMsg(MSG_KEYDOWN, 0, 0, 0);
+    return;
+  } else if(shift & E0ESC){
+    // Last character was an E0 escape; or with 0x80
+    data |= 0x80;
+    shift &= ~E0ESC;
+  }
+
+  shift |= shiftcode[data];
+  shift ^= togglecode[data];
+  c = charcode[shift & (CTL | SHIFT)][data];
+  if(shift & CAPSLOCK){
+    if('a' <= c && c <= 'z')
+      c += 'A' - 'a';
+    else if('A' <= c && c <= 'Z')
+      c += 'a' - 'A';
+  }
+  createMsg(MSG_KEYDOWN, 0, 0, c);
+}
+
+
+
 void
 kbdintr(void)
 {
@@ -26,6 +71,7 @@ kbdintr(void)
   //press down
   if((ch & 0x80) == 0)
   {
+    cprintf("%d fk %d\n", (ch & 0x80), ch);
     //flag
     int flag_temp;
     flag_temp = shiftcode[ch];
@@ -43,7 +89,57 @@ kbdintr(void)
       return;
     }
 
-    //get result
+    //cprintf("ch: %d\n", ch);
+
+    // if(ch == 1)
+    //   flag = KBD_ESC;
+    // else if(ch == 75)
+    //   flag = KBD_LEFT;
+    // else if(ch == 77)
+    //   flag = KBD_RIGHT;
+    // else if(ch == 72)
+    //   flag = KBD_UP;
+    // else if(ch == 80)
+    //   flag = KBD_DOWN;
+    // else
+    //   flag = 0;
+
+    // int cur_icon = WindowLine->next->Cur_icon;
+    // if(cur_icon == ICON_TEXT)
+    // {
+    //   kbd_text(result, flag);
+    // }
+    // else if(cur_icon == ICON_PHOTO)
+    //   photo(result, flag);
+  }
+  //release
+  else
+  {
+    //ch = ch & 0x7F;
+//
+    //caps lock
+    if(togglecode[ch & 0x7F] == CAPSLOCK)
+    {
+      //cprintf("caps\n");
+      flag_caps = 0;
+    }
+
+    //shift
+    else if(shiftcode[ch & 0x7F] == flag_shift)
+    {
+      //cprintf("shift\n");
+      flag_shift = NO;
+    }
+    // else
+    // {
+    //   char result;
+    //   result = normalmap[ch];
+    //       cprintf("hh %d\n", ch);
+    //   createMsg(MSG_KEYDOWN, 0, 0, result);
+    // }
+    return;
+  }
+   //get result
     char result;
     if(flag_caps == 0)
     {
@@ -77,52 +173,6 @@ kbdintr(void)
     }
 
     createMsg(MSG_KEYDOWN, 0, 0, result);
-
-
-    //cprintf("ch: %d\n", ch);
-
-    // if(ch == 1)
-    //   flag = KBD_ESC;
-    // else if(ch == 75)
-    //   flag = KBD_LEFT;
-    // else if(ch == 77)
-    //   flag = KBD_RIGHT;
-    // else if(ch == 72)
-    //   flag = KBD_UP;
-    // else if(ch == 80)
-    //   flag = KBD_DOWN;
-    // else
-    //   flag = 0;
-
-    // int cur_icon = WindowLine->next->Cur_icon;
-    // if(cur_icon == ICON_TEXT)
-    // {
-    //   kbd_text(result, flag);
-    // }
-    // else if(cur_icon == ICON_PHOTO)
-    //   photo(result, flag);
-  }
-  //release
-  else
-  {
-    ch = ch & 0x7F;
-
-    //caps lock
-    if(togglecode[ch] == CAPSLOCK)
-    {
-      //cprintf("caps\n");
-      flag_caps = 0;
-    }
-
-    //shift
-    if(shiftcode[ch] == flag_shift)
-    {
-      //cprintf("shift\n");
-      flag_shift = NO;
-    }
-
-    return;
-  }
 }
 
 /*
