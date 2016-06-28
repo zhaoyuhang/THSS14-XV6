@@ -290,7 +290,7 @@ handle_keydown(struct Context context, char ch, int rfd, int wfd) {
         switch (nch)
         {
             case KEY_HOME:
-            //printf(0, "get ");
+                //printf(0, "get ");
                 clean_printer(context, 0);
                 if (!isHisFull && linehis_index < LINES)
                 {
@@ -620,6 +620,13 @@ handle_keydown(struct Context context, char ch, int rfd, int wfd) {
 
     printf(0, "%d\n", ch);
     // append the ch to the command and display the command
+// for (k = write_index; k > cur_write + 1; k--)
+// {
+//     write_cmd[k+1] = write_cmd[k];
+// }
+// write_cmd[k] = ch;
+// write_index++;
+// cur_write++;
     cur_write = write_index;
     write_cmd[write_index++] = ch;
     string_printer(context, &ch, 1);

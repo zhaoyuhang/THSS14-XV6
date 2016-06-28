@@ -321,8 +321,8 @@ EXTRA=\
 	printf.c umalloc.c\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
-	touch.c cp.c uptime.c mv.c editor.c script.c cal.c maf.c\
-	cf.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c\
+	touch.c cp.c uptime.c mv.c editor.c script.c cal.c\
+	cf.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c maf.c\
 
 dist:
 	rm -rf dist
