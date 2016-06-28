@@ -148,7 +148,7 @@ void draw_tasklist(struct Context context, PICNODE pic[])
     int i = 1;
     while (tasknode != 0)
     {
-        draw_picture(context, pic[tasknode->appID - 1], 75*i, 525);
+        draw_picture(context, pic[tasknode->appID - 1], 75*i, 550);
         tasknode = tasknode->next;
         i++;
         if (i == 11)

@@ -240,7 +240,7 @@ UPROGS=\
         _halt\
 
 fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp
+	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp shell_75.bmp shell_50.bmp folder_75.bmp folder_50.bmp music_75.bmp music_50.bmp paint_75.bmp paint_50.bmp file_75.bmp file_50.bmp
 
 
 -include *.d

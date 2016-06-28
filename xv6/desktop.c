@@ -114,6 +114,7 @@ int main(int argc, char *argv[])
     fill_rect(context, 0, 0, context.width, context.height, 0xffff);
 //    puts_str(context, "desktop: welcome", 0x0, 0, 0);
 
+    int minute_flag = 0;
     int hour = 0, minute = 0, second = 0;
     int *t,*m,*s;
     char hou_str[5], min_str[5], sec_str[5];
@@ -131,61 +132,63 @@ int main(int argc, char *argv[])
     //puts_str(context, min_str, 0,220, 200);
     //puts_str(context, ":", 0x0101, 235, 200);
     //puts_str(context, sec_str, 0x0101, 240, 200);
+    getTime(t,m,s);
+    convert(hour, hou_str);
+    convert(minute, min_str);
+    convert(second, sec_str);
+    fill_rect(context, 680, 550, 60, 18, 0x0101);
+    puts_str(context, hou_str, 0xffff, 680, 550);
+    puts_str(context, ":", 0xffff, 695, 550);
+    puts_str(context, min_str, 0xffff,700, 550);
+   // puts_str(context, ":", 0xffff, 715, 550);
+   // puts_str(context, sec_str, 0xffff, 720, 550);
 
-    PICNODE pic[4];
-    loadBitmap(&pic[0], "music.bmp");
-    loadBitmap(&pic[1], "setting.bmp");
-    loadBitmap(&pic[2], "notes.bmp");
-//    loadBitmap(&pic[3], "bg.bmp");
+    PICNODE pic[5];
+    PICNODE picIcon[4];
+    PICNODE bgPic;
+    loadBitmap(&pic[0], "music_50.bmp");
+    loadBitmap(&pic[1], "shell_50.bmp");
+    loadBitmap(&pic[2], "folder_50.bmp");
+    loadBitmap(&pic[3], "paint_50.bmp");
+    loadBitmap(&pic[4], "file_50.bmp");
+    loadBitmap(&picIcon[0], "music_75.bmp");
+    loadBitmap(&picIcon[1], "shell_75.bmp");
+    loadBitmap(&picIcon[2], "folder_75.bmp");
+    loadBitmap(&picIcon[3], "paint_75.bmp");
+    loadBitmap(&bgPic, "bg.bmp");
     set_icon_alpha(&pic[0]);
     set_icon_alpha(&pic[1]);
     set_icon_alpha(&pic[2]);
-//
+    set_icon_alpha(&pic[3]);
+    set_icon_alpha(&pic[4]);
+    set_icon_alpha(&picIcon[0]);
+    set_icon_alpha(&picIcon[1]);
+    set_icon_alpha(&picIcon[2]);
+    set_icon_alpha(&picIcon[3]);
+    set_icon_alpha(&bgPic);
+
     //fill_rect(context, 160, 400, 500, 150, 0x0101);
 
-    draw_picture(context, pic[3], 0, 0);
-    draw_picture(context, pic[0], 50, 50);
-    draw_picture(context, pic[1], 50, 192);
-    draw_picture(context, pic[2], 50, 325);
-    draw_picture(context, pic[1], 0, 525);
+    draw_picture(context, bgPic, 0, 0);
+    draw_picture(context, picIcon[0], 50, 50);
+    draw_picture(context, picIcon[1], 50, 192);
+    draw_picture(context, picIcon[2], 192, 50);
+    draw_picture(context, picIcon[3], 192, 192);
+    draw_picture(context, picIcon[1], 0, 525);
     //draw_iconlist(context, iconlist, sizeof(iconlist) / sizeof(ICON));
 
     manager = initClickManager(context);
     createClickable(&manager, initRect(50, 50, 75, 75), MSG_DOUBLECLICK, playmusic);
     createClickable(&manager, initRect(50, 192, 75, 75), MSG_DOUBLECLICK, shellinit);
-    createClickable(&manager, initRect(50, 325, 75, 75), MSG_DOUBLECLICK, finderinit);
+    createClickable(&manager, initRect(192, 50, 75, 75), MSG_DOUBLECLICK, finderinit);
     createClickable(&manager, initRect(0, 525, 75, 75), MSG_LPRESS, shutdownxv6);
     
     int p = 0;
-    int formerminute = -1;
-    int i = 100000;
     while(isRun)
     {
         getMsg(&msg);
         switch(msg.msg_type)
         {
-            default:
-                 if (i == 100000)
-                 {
-                     getTime(t,m,s);
-                     if (formerminute != minute)
-                     {
-        	         convert(hour, hou_str);
-        	         convert(minute, min_str);
-   	 	         convert(second, sec_str);
-	 	         fill_rect(context, 680, 550, 50, 18, 0x0101);
-   	 	         puts_str(context, hou_str, 0xffff, 680, 550);
-   	 	         puts_str(context, ":", 0xffff, 695, 550);
-   		         puts_str(context, min_str, 0xffff,700, 550);
-//   		         puts_str(context, ":", 0xffff, 715, 550);
-//   		         puts_str(context, sec_str, 0xffff, 720, 550);
-		         updateWindow(winid, context.addr, msg.msg_detail);
-                         formerminute = minute;
-                     }
-                     i = 0;
-                 }
-                 i++;
-                //break;
             case MSG_UPDATE:
                 printf(1, "msg_detail %d\n", msg.msg_detail);
                 updateWindow(winid, context.addr, msg.msg_detail);
@@ -218,6 +221,23 @@ int main(int argc, char *argv[])
                 p = 0;
                 draw_tasklist(context, pic);
                 updateWindow(winid, context.addr, msg.msg_detail);
+                break;
+            default:
+                getTime(t,m,s);
+        	convert(hour, hou_str);
+        	convert(minute, min_str);
+   	 	convert(second, sec_str);
+	 	fill_rect(context, 680, 550, 100, 18, 0x0101);
+   	        puts_str(context, hou_str, 0xffff, 680, 550);
+   	 	puts_str(context, ":", 0xffff, 695, 550);
+   		puts_str(context, min_str, 0xffff,700, 550);
+   		//puts_str(context, ":", 0xffff, 715, 550);
+   		//puts_str(context, sec_str, 0xffff, 720, 550);
+        	sleep(60);
+		if(minute_flag != minute){
+                minute_flag = minute;
+	        updateWindow(winid, context.addr, msg.msg_detail);
+		}
                 break;
         }
     }
