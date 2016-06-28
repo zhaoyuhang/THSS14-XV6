@@ -90,10 +90,10 @@ int main(int argc, char *argv[])
 						flag = 1;
 						break;
 					}
-					if(flag == 1)
-					{
-						i--;//if the landmine is a superposition, reproduce it.
-					}
+				}
+				if(flag == 1)
+				{
+					i--;//if the landmine is a superposition, reproduce it.
 				}
 			}
 			//now we have the landmine position

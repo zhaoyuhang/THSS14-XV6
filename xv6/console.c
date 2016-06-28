@@ -16,9 +16,9 @@
 
 //yi xia shi hou jia de
 #define COMMANDMAXLENDTH 10//命令的最长长度
-#define COMMANDNUM 33//命令的个数
+#define COMMANDNUM 34//命令的个数
 char *command[COMMANDNUM] = { "cat", "cd", "cp", "echo", "forktest", "grep", "help", "init", "kill", "ln", "ls",
-"mkdir", "rename", "rm", "script", "sh", "stressfs", "usertests", "vim", "wc", "zombie", "cal", "cf", "date", "game", "head", "rename", "tac", "tail", "zip", "clist", "week", "maf"};
+"mkdir", "rename", "rm", "script", "sh", "stressfs", "usertests", "vim", "wc", "zombie", "cal", "cf", "date", "game", "head", "rename", "tac", "tail", "zip", "clist", "week", "maf", "mvall"};
 int color[16] = { 0x0000, 0x0100, 0x0200, 0x0300, 0x0400, 0x0500, 0x0600, 0x0700,
 0x0800, 0x0900, 0x0a00, 0x0b00, 0x0c00, 0x0d00, 0x0e00, 0x0f00 };
 char matchinput[COMMANDMAXLENDTH];
