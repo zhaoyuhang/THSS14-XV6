@@ -20,6 +20,7 @@
 #include "context.h"
 #include "drawingAPI.h"
 #include "message.h"
+#include "tasklist.h"
 
 // Define the height of the header and footer
 // Define the width of the left and right border
@@ -311,10 +312,11 @@ main(int argc, char *argv[])
 {
     struct windowinfo winfo;
     int sh_pid, rfd, wfd;
-
+    
     init_window(&winfo, "I'm a SHELL");
     create_shell(&sh_pid, &rfd, &wfd);
     init_screen(winfo.context, rfd);
+    init_tasklist();
 
     cm = initClickManager(winfo.context);
     deleteClickable(&cm.left_click, initRect(0, 0, 800, 600));
@@ -350,6 +352,7 @@ main(int argc, char *argv[])
         }
     }
 
+//    delete_tasknode(2);
     free_context(&(winfo.context), winfo.id);
     exit();
 }
