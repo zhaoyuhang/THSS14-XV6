@@ -30,7 +30,7 @@ int sys_updateWindow()
 	if (argint(0, &window_id) < 0)
 		return -1;
 	pWindow = getWindowById(window_id);
-	//cprintf("updateWindow called: %d\n", pWindow);
+	cprintf("updateWindow called: %d\n", pWindow);
 	if (pWindow == 0) return -1;
 	int size = ((pWindow->window_position).right_x - (pWindow->window_position).left_x) *
 		((pWindow->window_position).right_y - (pWindow->window_position).left_y);
@@ -51,6 +51,7 @@ int sys_updatePartialWindow()
 	if (argint(0, &window_id) < 0)
 		return -1;
 	pWindow = getWindowById(window_id);
+        cprintf("updatePartialWindow called: %d\n", pWindow);
 	if (pWindow == 0) return -1;
 	int size = ((pWindow->window_position).right_x - (pWindow->window_position).left_x) *
 		((pWindow->window_position).right_y - (pWindow->window_position).left_y);
