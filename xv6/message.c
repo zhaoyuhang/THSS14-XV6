@@ -279,6 +279,8 @@ void getMsg(int pid, struct Msg* ptr)
     ptr->msg_type = MSG_NONE;
 }
 
+
+
 int sys_getMsg()
 {
 	struct Msg* ptr;

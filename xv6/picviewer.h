@@ -32,5 +32,3 @@ void drawPicViewerContent(Context context, char* fileName);
 void h_closeWnd(Point p);
 
 void addWndEvent(ClickableManager *cm);
-
-//放大缩小函数

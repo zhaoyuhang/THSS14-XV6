@@ -2,6 +2,7 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+#include "message.h"
 #include "drawingAPI.h"
 
 int init_context(struct Context* context_ptr, int width, int height)
