@@ -39,9 +39,11 @@ void draw_point(struct Context c, unsigned int x, unsigned int y, unsigned short
 void fill_rect(struct Context c, unsigned int bx, unsigned int by, unsigned int width, unsigned int height, unsigned short color);
 void fill_rect_vertical_gradient(struct Context c, unsigned int bx, unsigned int by, unsigned int width, unsigned int height, unsigned short color1, unsigned short color2);
 void puts_str(struct Context c, char *str, unsigned short colorNum, int x, int y);
+void put_str(struct Context c, char ch, unsigned short colorNum, int x, int y);
 void draw_picture(Context c, struct PicNode pic, int x, int y);
 void draw_line(Context c, int x0, int y0, int x1, int y1, unsigned short color);
 void draw_window(Context c, char *title);
+void draw_window2(Context c, char *title, int len, unsigned short color);
 void load_iconlist(ICON* iconlist, int len);
 void draw_iconlist(Context c, ICON* iconlist, int len);
 
