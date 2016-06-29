@@ -257,7 +257,7 @@ void fileSortByName() {
 }
 
 // 初始化图片浏览器
-void picViewerInit(Point point, char* fileName);
+void picViewerInit(Point point, char* file, char* len, char* pos);
 
 // 文件项列表相关操作
 void addFileItem(struct stat st, char *name, Rect pos) {
@@ -460,30 +460,24 @@ char *sizeFormat(uint size){
 	return result;
 }
 
-struct Icon wndRes[] = { { "close.bmp", 3, 3 }, { "foldericon.bmp", 20, 3 }, { "viewingmode2.bmp", WINDOW_WIDTH - (BUTTON_WIDTH + 5),
-		TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, {
-		"viewingmode1.bmp", WINDOW_WIDTH - (2 * BUTTON_WIDTH + 6), TOPBAR_HEIGHT
-				+ TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, { "createfolder.bmp",
-		5, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, {
-		"createfile.bmp", (BUTTON_WIDTH + 6), TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "up.bmp", 2 * BUTTON_WIDTH + 50,
-		TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, { "trash.bmp",
-		3 * BUTTON_WIDTH + 50, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "rolldown.bmp",
-		4 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "rollup.bmp",
-		5 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "cut.bmp",
-		7 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "copy.bmp",
-		8 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "paste.bmp",
-		9 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "blank.bmp",
-		10 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }, { "rename.bmp",
-		2 * BUTTON_WIDTH + 7, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT
-				- (BUTTON_HEIGHT + 3) }  };
+struct Icon wndRes[] = 
+{ 
+	{ "close.bmp", 3, 3 }, 
+	{ "foldericon.bmp", 20, 3 },
+	{ "viewingmode2.bmp", WINDOW_WIDTH - (BUTTON_WIDTH + 5),TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) },
+	{ "viewingmode1.bmp", WINDOW_WIDTH - (2 * BUTTON_WIDTH + 6), TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{ "createfolder.bmp", 5, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{"createfile.bmp", (BUTTON_WIDTH + 6), TOPBAR_HEIGHT + TOOLSBAR_HEIGHT- (BUTTON_HEIGHT + 3) }, 
+	{ "up.bmp", 2 * BUTTON_WIDTH + 50,TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{ "trash.bmp", 3 * BUTTON_WIDTH + 50, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT- (BUTTON_HEIGHT + 3) }, 
+	{ "rolldown.bmp", 4 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 	
+	{ "rollup.bmp", 5 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{ "cut.bmp", 7 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{ "copy.bmp", 8 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT- (BUTTON_HEIGHT + 3) }, 
+	{ "paste.bmp", 9 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{ "blank.bmp", 10 * BUTTON_WIDTH + 100, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }, 
+	{ "rename.bmp", 2 * BUTTON_WIDTH + 7, TOPBAR_HEIGHT + TOOLSBAR_HEIGHT - (BUTTON_HEIGHT + 3) }  
+};
 
 void drawFinderWnd(Context context) {
 //	fill_rect(context, 0, 0, context.width, context.height, 0xFFFF);
@@ -1256,7 +1250,95 @@ void h_openFile(Point p) {
 		textEditor_init(fileName);
 	} else if (fileName[length-4] == '.' && fileName[length-3] == 'b' && fileName[length-2] == 'm' && fileName[length-1] == 'p') {
 		printf(0, "bmp!! %s\n", temp->name);
-		picViewerInit(p, temp->name);
+		int i = 0;
+		int j = 0;
+		struct fileItem *q;
+		q = fileItemList;
+		char file1[20000];
+		int len = 0;
+		int pos = 0;
+		while (q != 0) {
+			char fileName1[201];
+			strcpy(fileName1, q->name);
+			int length1 = strlen(fileName1);
+			if (length1 <= 4) {
+				q = q->next;
+				continue;
+			}
+			if (fileName1[length1-4] == '.' && fileName1[length1-3] == 'b' && fileName1[length1-2] == 'm' && fileName1[length1-1] == 'p'){	
+				for (i = 0; i <= length1; i++)
+					file1[len + i] = fileName1[i];
+				file1[len + length1] = '\1';
+				len = len + length1 + 1;	
+				j = j + 1;
+			}
+			if (strcmp(fileName,fileName1) == 0)
+				pos = j;
+			q = q->next;		
+		}
+		char* file = (char*)malloc(len*sizeof(char));
+		for(i = 0;i < len;i++)
+			file[i] = file1[i];
+		file[len] = '\0';
+		printf(0,"%d",len);
+		i = 0;
+		char*strw = (char*)malloc(10*sizeof(char));
+		char*strh = (char*)malloc(10*sizeof(char));
+		int lengthwt; 
+		while(len>0)
+		{
+			strw[i] = len%10 + '0';
+			len/=10;
+			i++;	
+		}
+	
+		lengthwt = i;
+		for(;i<=10;i++)
+		{
+			strw[i] = '\0';
+		}
+		char* strwt = (char*)malloc((lengthwt+1)*sizeof(char));
+		//printf(0,"%d",lengthwt);
+		int k0 = 0;
+		int k = lengthwt - 1;
+		for(;k >= 0;k--)
+		{
+			if(strw[k0] != '\0')strwt[k] = strw[k0];
+			else break;
+			k0++;
+		
+		}
+		strwt[lengthwt] = '\0';
+		free(strw);
+
+		j = 0;
+		int lengthht; 
+		while(pos>0)
+		{
+			strh[j] = pos%10 + '0';
+			pos/=10;
+			j++;	
+		}
+	
+		lengthht = j;
+		for(;j<=10;j++)
+		{
+			strh[j] = '\0';
+		}
+		char* strht = (char*)malloc((lengthht+1)*sizeof(char));
+		//printf(0,"%d",lengthht);
+		int t0 = 0;
+		int t = lengthht - 1;
+		for(;t >= 0;t--)
+		{
+			if(strh[t0] != '\0')strht[t] = strh[t0];
+			else break;
+			t0++;
+		
+		}
+		strht[lengthht] = '\0';
+		free(strh);
+		picViewerInit(p, file, strwt, strht);
 	}
 }
 
@@ -1319,10 +1401,10 @@ void h_rename(Point p) {
 	drawFinderWnd(context);
 }
 
-void picViewerInit(Point point, char* fileName)
+void picViewerInit(Point point, char* file, char* len, char* pos)
 {
     int pid;
-    char* picViewer_argv[] = { "picviewer", fileName };
+    char* picViewer_argv[] = { "picviewer", file, len, pos };
 
     printf(1, "init picViewer: starting picViewer\n");
     pid = fork();

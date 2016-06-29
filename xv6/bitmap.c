@@ -6,81 +6,76 @@
 void showRgbQuan(RGBQUAD* pRGB);
 void showBmpHead(BITMAPFILEHEADER* pBmpHead);
 void showBmpInforHead(BITMAPINFOHEADER* pBmpInforHead);
-void loadBitmap(PICNODE *pic, char pic_name[]) {
-	BITMAPFILEHEADER bitHead;
-	BITMAPINFOHEADER bitInfoHead;
-	char *BmpFileHeader;
+
+void loadBitmap(PICNODE *pic, char pic_name[])//加载bmp文件，pic为图片节点数组，pic_name为文件名字符串
+{
+	BITMAPFILEHEADER bitHead;//定义文件头
+	BITMAPINFOHEADER bitInfoHead;//定义信息头
+	char *BmpFileHeader;//文件头字符串
 	WORD *temp_WORD;
 	DWORD *temp_DWORD;
-	int fd, n, i, j, k, index = 0;
+	int fd, n, i, j, k, index = 0;//fd为文件描述符
 	int width;
 	int height;
-
-	if ((fd = open(pic_name, 0)) < 0) {
-		printf(0, "cannot open %s\n", pic_name);
+    
+    //打开bmp文件
+	if ((fd = open(pic_name, 0)) < 0) {//打开文件
+		printf(0, "cannot open %s\n", pic_name);//打不开
 		return;
 	}
-	printf(0, "reading bitmap: %s\n", pic_name);
-	//pfile = fopen(strFile,"rb");//打开文件
-	BmpFileHeader = (char *) malloc(14 * sizeof(char));
+	printf(0, "reading bitmap: %s\n", pic_name);//打得开
+    //打开bmp文件结束
+    
+    //读取文件头
+	BmpFileHeader = (char *) malloc(14 * sizeof(char));//文件头字符串初始化，14个字符
 
-	//printf(0, "file bmp open success.\n");
-	//读取位图文件头信息
-	//printf(0, "reading BmpFileHeader.\n");
-	n = read(fd, BmpFileHeader, 14);
-	//fread(BmpFileHeader,1,14,pfile);
+    n = read(fd, BmpFileHeader, 14);//从文件中读取前14个字符到文件头字符串中
 	temp_WORD = (WORD*) (BmpFileHeader);
-	bitHead.bfType = *temp_WORD;
-	if (bitHead.bfType != 0x4d42) {
+	bitHead.bfType = *temp_WORD;//取下文件头字符串里WORD类型的bfType
+	if (bitHead.bfType != 0x4d42) {//不是0x4d42的话就给跪
 		printf(0, "file is not .bmp file!");
 		return;
 	}
 	temp_DWORD = (DWORD *) (BmpFileHeader + sizeof(bitHead.bfType));
-	bitHead.bfSize = *temp_DWORD;
+	bitHead.bfSize = *temp_DWORD;//取文件大小
 	temp_WORD = (WORD*) (BmpFileHeader + sizeof(bitHead.bfType)
 			+ sizeof(bitHead.bfSize));
-	bitHead.bfReserved1 = *temp_WORD;
+	bitHead.bfReserved1 = *temp_WORD;//取保留字1
 	temp_WORD = (WORD*) (BmpFileHeader + sizeof(bitHead.bfType)
 			+ sizeof(bitHead.bfSize) + sizeof(bitHead.bfReserved1));
-	bitHead.bfReserved2 = *temp_WORD;
+	bitHead.bfReserved2 = *temp_WORD;//取保留字2
 	temp_DWORD = (DWORD*) (BmpFileHeader + sizeof(bitHead.bfType)
 			+ sizeof(bitHead.bfSize) + sizeof(bitHead.bfReserved1)
 			+ sizeof(bitHead.bfReserved2));
-	bitHead.bfOffBits = *temp_DWORD;
-	//printf(0, "reading BmpFileHeader success!\n");
-	//showBmpHead(&bitHead);
-	//printf(0, "\n\n");
-//
-//	//读取位图信息头信息
-	read(fd, &bitInfoHead, sizeof(BITMAPINFOHEADER));
-	width = bitInfoHead.biWidth;
-	height = bitInfoHead.biHeight;
+	bitHead.bfOffBits = *temp_DWORD;//取偏移字节数
+    //读取文件头结束
+	
+    //读取位图信息头信息
+	read(fd, &bitInfoHead, sizeof(BITMAPINFOHEADER));//读取信息头到信息头（这是把字符串一下子读给一个结构体吗？这么神奇吗？）
+	width = bitInfoHead.biWidth;//宽取下来
+	height = bitInfoHead.biHeight;//高取下来
 	printf(0, "bmp width: %d, height: %d, size: %d\n", width, height,
-			width * height * sizeof(RGBQUAD));
-	//fread(&bitInfoHead,1,sizeof(BITMAPINFOHEADER),pfile);
-	//showBmpInforHead(&bitInfoHead);
-	//printf(0, "\n");
-	if (n == 0) {
+			width * height * sizeof(RGBQUAD));//输出宽、高、大小
+    if (n == 0) {
 		printf(0, "0");
 	}
+    //读取位图信息头信息结束
 
 	//分配内存空间把源图存入内存
 	int l_width = WIDTHBYTES(width * bitInfoHead.biBitCount);//计算位图的实际宽度并确保它为32的倍数
 	BYTE *pColorData = (BYTE *) malloc(height * l_width);
 	memset(pColorData, 0, (uint) height * l_width);
 	long nData = height * l_width;
-	//把位图数据信息读到数组里
+	
+    //把位图数据信息读到数组里
 	read(fd, pColorData, nData);
-	//fread(pColorData,1,nData,pfile);
 
-	//printf(0, "reading bmp data.\n");
-	//将位图数据转化为RGB数据
+    //将位图数据转化为RGB数据
 	RGBQUAD* dataOfBmp;
-
 	dataOfBmp = (RGBQUAD *) malloc(width * height * sizeof(RGBQUAD));//用于保存各像素对应的RGB数据
 	memset(dataOfBmp, 0, (uint) width * height * sizeof(RGBQUAD));
-	if (bitInfoHead.biBitCount < 24)	//有调色板，即位图为非真彩色
-			{
+	if (bitInfoHead.biBitCount < 24)//有调色板，即位图为非真彩色
+    {
 		printf(0, "%s is not a 24 bit bmp! return.");
 		return;
 	} else	//位图为24位真彩色
@@ -95,32 +90,21 @@ void loadBitmap(PICNODE *pic, char pic_name[]) {
 				index++;
 			}
 	}
-
-	//printf(0, "reading bmp data success!\n");
-	//printf("像素数据信息:\n");
-
-//	for (i=0; i<width*height; i++)
-//	{
-//		if (i%5==0)
-//		{
-//			printf(0, "\n");
-//		}
-//		showRgbQuan(&dataOfBmp[i]);
-//	}
-
+    
+    //关闭该文件
 	close(fd);
+    //存入pic指向的节点中
+	pic->data = dataOfBmp;//存RGB数组
+	pic->width = width;//存宽
+	pic->height = height;//存高
 
-	//free(dataOfBmp);
-	pic->data = dataOfBmp;
-	pic->width = width;
-	pic->height = height;
 	free(pColorData);
 	free(BmpFileHeader);
-	//printf("\n");
 }
 
-void showBmpHead(BITMAPFILEHEADER* pBmpHead) {
-	printf(0, "位图文件头:\n");
+void showBmpHead(BITMAPFILEHEADER* pBmpHead)//输出文件头
+{
+    printf(0, "位图文件头:\n");
 	printf(0, "bmp格式标志bftype：0x%x\n", pBmpHead->bfType);
 	printf(0, "文件大小:%d\n", pBmpHead->bfSize);
 	printf(0, "保留字:%d\n", pBmpHead->bfReserved1);
@@ -128,7 +112,8 @@ void showBmpHead(BITMAPFILEHEADER* pBmpHead) {
 	printf(0, "实际位图数据的偏移字节数:%d\n", pBmpHead->bfOffBits);
 }
 
-void showBmpInforHead(BITMAPINFOHEADER* pBmpInforHead) {
+void showBmpInforHead(BITMAPINFOHEADER* pBmpInforHead)//输出信息头
+{
 	printf(0, "位图信息头:\n");
 	printf(0, "结构体的长度:%d\n", pBmpInforHead->biSize);
 	printf(0, "位图宽:%d\n", pBmpInforHead->biWidth);
@@ -142,15 +127,18 @@ void showBmpInforHead(BITMAPINFOHEADER* pBmpInforHead) {
 	printf(0, "使用的颜色数:%d\n", pBmpInforHead->biClrUsed);
 	printf(0, "重要颜色数:%d\n", pBmpInforHead->biClrImportant);
 }
-void showRgbQuan(RGBQUAD* pRGB) {
+void showRgbQuan(RGBQUAD* pRGB)//输出RGB
+{
 	printf(0, "(%d,%d,%d) ", pRGB->rgbRed, pRGB->rgbGreen, pRGB->rgbBlue);
 }
 
-void freepic(PICNODE *pic) {
+void freepic(PICNODE *pic)//释放pic
+{
 	free(pic->data);
 }
 
-void set_icon_alpha(PICNODE *pic) {
+void set_icon_alpha(PICNODE *pic)//图标透明度,rgb保留值用于Alpha通道
+{
 	int W = 15;
 	Rect r1 = initRect(0, 0, W, W);
 	Rect r2 = initRect(pic->width - W, 0, W, W);
