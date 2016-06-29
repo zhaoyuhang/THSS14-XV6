@@ -10,6 +10,8 @@
 *.d 
 *.asm 
 *.sym
+xv6/*.asm
+xv6/*.sym
 
 
 # Object files
