@@ -81,8 +81,8 @@ AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
-#CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -fno-omit-frame-pointer
-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -Wall -MD -gdwarf-2 -m32 -fno-omit-frame-pointer
+#CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
+CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -Wall -MD -gdwarf-2 -m32 -Werror -fno-omit-frame-pointer
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
 # FreeBSD ld wants ``elf_i386_fbsd''
@@ -175,7 +175,6 @@ _finder: finder.o $(GUILIB) $(ULIB)
 	$(OBJDUMP) -S $@ > $*.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
-
 _playmusic: playmusic.o $(GUILIB) $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
 	$(OBJDUMP) -S $@ > $*.asm
@@ -191,9 +190,13 @@ _picviewer: picviewer.o $(GUILIB) $(ULIB)
 	$(OBJDUMP) -S $@ > $*.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
+_paintboard: paintboard.o $(GUILIB) $(ULIB)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
+	$(OBJDUMP) -S $@ > $*.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
 mkfs: mkfs.c fs.h
-	gcc -Wall -o mkfs mkfs.c
+	gcc -Werror -Wall -o mkfs mkfs.c
 
 # Prevent deletion of intermediate files, e.g. cat.o, after first build, so
 # that disk image changes after first build are persistent until clean.  More
@@ -213,6 +216,7 @@ UPROGS=\
 	_pause\
 	_decode\
 	_mkdir\
+	_paintboard\
 	_playmusic\
 	_play\
 	_playmp3\
@@ -239,7 +243,7 @@ UPROGS=\
 	_cal\
 
 fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp
+	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp paintboard.bmp pen.bmp eraser.bmp rectangle.bmp triangle.bmp circle.bmp red.bmp green.bmp blue.bmp saveImage.bmp
 
 
 -include *.d

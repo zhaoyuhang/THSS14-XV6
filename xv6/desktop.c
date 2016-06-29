@@ -75,6 +75,25 @@ void playmusic(Point point)
     }
 }
 
+void paintinit(Point point)
+{
+    int pid;
+    char* paint_argv[] = { "paintboard"};
+    printf(0, "init player: starting paint board \n");
+    pid = fork();
+    if (pid < 0)
+    {
+        printf(1, "init paint board: fork failed\n");
+        exit();
+    }
+    if (pid == 0)
+    {
+        exec("paintboard", paint_argv);
+        printf(1, "warning: exec paint board failed\n");
+        exit();
+    }
+}
+
 int main(int argc, char *argv[])
 {
     int winid;
@@ -90,29 +109,33 @@ int main(int argc, char *argv[])
     fill_rect(context, 0, 0, context.width, context.height, 0xffff);
 //    puts_str(context, "desktop: welcome", 0x0, 0, 0);
 
-    PICNODE pic1, pic2, pic3, background;
+    PICNODE pic1, pic2, pic3, paintboard, background;
     loadBitmap(&pic1, "music.bmp");
     loadBitmap(&pic2, "setting.bmp");
     loadBitmap(&pic3, "notes.bmp");
+    loadBitmap(&paintboard, "paintboard.bmp");
     //loadBitmap(&background, "bg.bmp");
     set_icon_alpha(&pic1);
     set_icon_alpha(&pic2);
     set_icon_alpha(&pic3);
+    set_icon_alpha(&paintboard);
 //    set_icon_alpha(&pic4);
 //
     //fill_rect(context, 160, 400, 500, 150, 0x0101);
 //    //loadBitmap(&background, "bg.bmp");
 
     draw_picture(context, background, 0, 0);
-    draw_picture(context, pic1, 225, 450);
-    draw_picture(context, pic2, 363, 450);
-    draw_picture(context, pic3, 500, 450);
+    draw_picture(context, pic1, 200, 450);
+    draw_picture(context, pic2, 300, 450);
+    draw_picture(context, pic3, 400, 450);
+    draw_picture(context, paintboard, 500, 450);
     //draw_iconlist(context, iconlist, sizeof(iconlist) / sizeof(ICON));
 
     manager = initClickManager(context);
-    createClickable(&manager, initRect(225, 450, 75, 75), MSG_DOUBLECLICK, playmusic);
-    createClickable(&manager, initRect(367, 450, 75, 75), MSG_DOUBLECLICK, shellinit);
-    createClickable(&manager, initRect(500, 450, 75, 75), MSG_DOUBLECLICK, finderinit);
+    createClickable(&manager, initRect(200, 450, 75, 75), MSG_DOUBLECLICK, playmusic);
+    createClickable(&manager, initRect(300, 450, 75, 75), MSG_DOUBLECLICK, shellinit);
+    createClickable(&manager, initRect(400, 450, 75, 75), MSG_DOUBLECLICK, finderinit);
+    createClickable(&manager, initRect(500, 450, 75, 75), MSG_DOUBLECLICK, paintinit);
 
     while(isRun)
     {
