@@ -142,7 +142,7 @@ vectors.S: vectors.pl
 	perl vectors.pl > vectors.S
 
 ULIB = ulib.o usys.o printf.o umalloc.o math.o common.o huffman.o decodemp3.o
-GUILIB = context.o drawingAPI.o bitmap.o clickable.o
+GUILIB = context.o drawingAPI.o bitmap.o clickable.o tasklist.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
@@ -191,6 +191,11 @@ _picviewer: picviewer.o $(GUILIB) $(ULIB)
 	$(OBJDUMP) -S $@ > $*.asm
 	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
 
+_paintboard: paintboard.o $(GUILIB) $(ULIB)
+	$(LD) $(LDFLAGS) -N -e main -Ttext 0 -o $@ $^
+	$(OBJDUMP) -S $@ > $*.asm
+	$(OBJDUMP) -t $@ | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $*.sym
+
 
 mkfs: mkfs.c fs.h
 	gcc -Werror -Wall -o mkfs mkfs.c
@@ -214,6 +219,7 @@ UPROGS=\
 	_decode\
 	_mkdir\
 	_playmusic\
+	_paintboard\
 	_play\
 	_playmp3\
 	_mp3dec\
@@ -237,8 +243,9 @@ UPROGS=\
 	_ren\
 	_splice\
 	_cal\
+    _halt\
 	_maf\
-	_cf\
+	_createtestfile\
 	_date\
 	_game\
 	_head\
@@ -251,7 +258,7 @@ UPROGS=\
 	_mvall\
 
 fs.img: mkfs README $(UPROGS)
-	./mkfs fs.img README $(UPROGS) hankaku.txt cty.txt HZK16.fnt bar.bmp bar2.bmp flower.bmp close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav in.mp3 rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp
+	./mkfs fs.img README $(UPROGS) rolling.bmp next.bmp hankaku.txt cty.txt HZK16.fnt bar.bmp bar2.bmp flower.bmp close.bmp foldericon.bmp play.bmp pause.bmp viewingmode1.bmp viewingmode2.bmp createfile.bmp createfolder.bmp up.bmp gamecenter.bmp folder_icon_big.bmp folder_icon_small.bmp file_icon_big.bmp file_icon_small.bmp pic_icon_small.bmp pic_icon_big.bmp music_icon_big.bmp music_icon_small.bmp bg.bmp music.bmp notes.bmp setting.bmp trash.bmp qian.wav test.wav rollup.bmp rolldown.bmp copy.bmp cut.bmp paste.bmp search.bmp rename.bmp up1.bmp down.bmp save.bmp shell_75.bmp shell_50.bmp folder_75.bmp folder_50.bmp music_75.bmp music_50.bmp paint_75.bmp paint_50.bmp file_75.bmp file_50.bmp pen.bmp eraser.bmp rectangle.bmp triangle.bmp circle.bmp red.bmp green.bmp blue.bmp saveImage.bmp shutdown_75.bmp shutdown_50.bmp center.bmp left.bmp right.bmp choose.bmp black.bmp s_red.bmp s_blue.bmp s_green.bmp
 
 
 -include *.d
@@ -323,7 +330,7 @@ EXTRA=\
 	README dot-bochsrc *.pl toc.* runoff runoff1 runoff.list\
 	.gdbinit.tmpl gdbutil\
 	touch.c cp.c uptime.c mv.c editor.c script.c cal.c\
-	cf.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c maf.c mvall.c\
+	createtestfile.c date.c game.c head.c rename.c tac.c tail.c zip.c clist.c week.c maf.c mvall.c halt.c\
 
 dist:
 	rm -rf dist

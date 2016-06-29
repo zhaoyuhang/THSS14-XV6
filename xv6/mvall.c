@@ -5,6 +5,24 @@
 #include "fs.h"
 
 #define BUF_SIZE 128
+char*
+fmtname(char *path)
+{
+  static char buf[DIRSIZ+1];
+  char *p;
+  
+  // Find first character after last slash.
+  for(p=path+strlen(path); p >= path && *p != '/'; p--)
+    ;
+  p++;
+  
+  // Return blank-padded name.
+  if(strlen(p) >= DIRSIZ)
+    return p;
+  memmove(buf, p, strlen(p));
+  memset(buf+strlen(p), ' ', DIRSIZ-strlen(p));
+  return buf;
+}
 void move(char* original, char* target)
 {
 	//判断第二个参数是不是以"/"结尾，如果是，则补全路径
@@ -22,16 +40,21 @@ void move(char* original, char* target)
 		i++;
 		strcpy(&com[len2], &original[i]);
 	}
-	
-	//打开目标文件
-	int fd_dest = open(com, O_WRONLY|O_CREATE);
-	if (fd_dest < 0)
+	if(fmtname(original)[0] == '.')
 	{
 		return;
 	}
-	int fd_src = open(original, O_WRONLY|O_CREATE);
+	//打开目标文件
+	int fd_src = open(original, O_RDONLY);
 	if(fd_src < 0)
 	{
+		close(fd_src);
+		return;
+	}
+	int fd_dest = open(com, O_WRONLY|O_CREATE);
+	if (fd_dest < 0)
+	{
+		close(fd_dest);
 		return;
 	}
 	//复制文件
@@ -86,6 +109,7 @@ int main(int argc, char *argv[])
 		printf(2, "source is a file, please use 'mv' to finish your operation\n");
 		return 0;
 	}
+	close(fd_src);
 	fd_src = open(argv[2], O_RDONLY);
 	if (fd_src < 0)
 	{
@@ -98,6 +122,7 @@ int main(int argc, char *argv[])
 		printf(2, "target should be a direcotry\n");
 		return 0;
 	}
+	close(fd_src);
 	if(strcmp(argv[1], argv[2]) == 0)
 	{
 		printf(2, "original directory is the same as target directory\n");
@@ -116,9 +141,13 @@ int main(int argc, char *argv[])
 		printf(2, "cannot stat %s\n", argv[1]);
 		close(fd);
 		return 0;
-	}	
+	}
+	argv[1][strlen(argv[1]) - 1] = '\0';
 	strcpy(buf, argv[1]);
 	p = buf+strlen(buf);
+	*p++ = '/';
+	struct stat sm;
+	int fdw;
 	while(read(fd, &de, sizeof(de)) == sizeof(de))
 	{
 		if(de.inum == 0)
@@ -126,10 +155,16 @@ int main(int argc, char *argv[])
 		memmove(p, de.name, DIRSIZ);
 		//put name in the last of p
 		p[DIRSIZ] = 0;
-		if(stat(buf, &st) < 0)
+		if(fmtname(buf)[0] == '.' && strcmp(argv[1], ".") != 0)
+		{
+		    continue;
+	    }
+		fdw = open(buf, 0);
+		if(fstat(fdw, &sm) < 0)
 		{
 			continue;
 		}
+		close(fdw);
 		move(buf, argv[2]);
 	}
 	close(fd);

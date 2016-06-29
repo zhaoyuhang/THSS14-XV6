@@ -107,10 +107,10 @@ int main(int argc, char* argv[]){
 
 /*int main(int argc,char* argv[]){
         int week; 
-  if(argc!= 4)
-  {
-     printf(1,"Error!\n");
-  }else
+	if(argc!= 4)
+	{
+	   printf(1,"Error!\n");
+	}else
         {
            int y = atoi(argv[1]);
            int m = atoi(argv[2]);
