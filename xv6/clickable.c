@@ -42,8 +42,8 @@ void createClickable(ClickableManager *c, Rect r, int MsgType, Handler h)
 {
 	switch (MsgType)
 	{
-		case MSG_DOUBLECLICK:
-			addClickable(&c->double_click, r, h);
+	    case MSG_DOUBLECLICK:
+		addClickable(&c->double_click, r, h);
 	        break;
 	    case MSG_LPRESS:
 	    	addClickable(&c->left_click, r, h);
@@ -64,6 +64,14 @@ void addClickable(Clickable **head, Rect r, Handler h)
 	c->area = r;
 	c->handler = h;
 	c->next = *head;
+        if (*head == 0)
+        {
+            c->ID = 1;
+        }
+        else
+        {
+            c->ID = c->next->ID + 1;
+        }
 	*head = c;
 }
 
@@ -119,14 +127,14 @@ int executeHandler(Clickable *head, Point click)
 			renaming = 0;
 			isSearching = 0;
 			cur->handler(click);
-			return 1;
+			return cur->ID;
 		}
 		cur = cur->next;
 	}
 	isSearching = 0;
 	if (renaming == 1){
 		renaming = 0;
-		return 1;
+		return -1;
 	}
 	printf(0, "execute: none!\n");
 	return 0;

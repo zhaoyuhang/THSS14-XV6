@@ -251,13 +251,33 @@ int
 main(int argc, char *argv[])
 {
   if(argc != 2){
-    printf(2, "Usage: calculate a expression...\n");
+    printf(1, "Please Input like this:cal 1+2\n");
     chdir("/");
     exit();
   }
+  int flag=0;
+  int i;
+  for(i=0; argv[1][i] != '\0'; i ++){
+    if(argv[1][i] == '-') continue;
+    if(argv[1][i] == '.'){
+      flag = 1;
+      continue;
+    }
+    if(argv[1][i]=='+' || argv[1][i] == '-' || argv[1][i] == '*' || argv[1][i] == '/' || argv[1][i] == '(' || argv[1][i] == ')')
+    {
+      continue;
+    }
+    if(argv[1][i] < '0' || argv[1][i] > '9'){
+      printf(1,"Wrong Input!Please Input like this:cal 1+2\n");
+      exit();
+    }
+  }
 
-  if(argc == 2){
+  if(argc == 2 && flag == 0){
     cal(argv[1]);
+  }
+  if(flag == 1){
+    printf(1,"There has the type of double \n");
   }
   chdir("/");
   exit();

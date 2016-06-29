@@ -33,3 +33,4 @@
 #define SYS_waitForDecode 32
 #define SYS_endDecode 33
 #define SYS_getCoreBuf 34
+#define SYS_halt 35

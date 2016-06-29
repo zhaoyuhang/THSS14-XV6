@@ -3,6 +3,7 @@
 #include "user.h"
 #include "fcntl.h"
 #include "fs.h"
+#include "x86.h"
 #define LENGTH 8//8 lines and 8 rows
 #define NUMOFLANDMINE 8//8 landmines
 #define THEREISALANDMINE 9//9 represent landmines that have not digged
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
 		int fd;
 		int i, j, k, flag;
 		int info[8][8];//information of a grid
-		char information[66];
+		char information[66] = {};
 		int landmineposition[NUMOFLANDMINE][2];
 		if(strcmp(argv[1], "begin") == 0)
 			//game begins
@@ -186,7 +187,7 @@ int main(int argc, char *argv[])
 			}
 			information[64] = NUMOFLANDMINE + '0';//landleft
 			information[65] = '\0';
-			fd = open("gamedata.txt", O_WRONLY | O_CREATE);
+			fd = open("gamedata", O_WRONLY | O_CREATE);
 			write(fd, information, strlen(information));
 			printf(1,"minesweeping game begin!\n");
 			for(i = 0; i < LENGTH; i++)
@@ -202,11 +203,15 @@ int main(int argc, char *argv[])
 		else
 		{
 			int leftlandminenum;
-			fd = open("gamedata.txt", O_RDONLY);
+			fd = open("gamedata", O_RDONLY);
 			//读文件获取游戏信息
 			if (fd < 0)
+			{
+				printf(2, "problem in file saving, please play again\n");
 				return fd;
+			}
 			read(fd, information, 66);
+			information[65] = '\0';
 			//重新写回文件里
 			for(i = 0; i < LENGTH; i++)
 			{
@@ -370,9 +375,13 @@ int main(int argc, char *argv[])
 			}
 			information[64] = leftlandminenum;//landmine left
 			information[65] = '\0';
-			fd = open("gamedata.txt", O_WRONLY | O_CREATE);
+			fd = open("gamedata", O_WRONLY | O_CREATE);
 			if (fd < 0)
+			{
+				sleep(500);
+				printf(2, "problem in file saving, please play again\n");
 				return fd;
+			}
 			write(fd, information, strlen(information));
 			close(fd);
 			return 0;

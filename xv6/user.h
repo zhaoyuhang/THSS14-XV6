@@ -37,6 +37,7 @@ int beginDecode();
 int waitForDecode();
 int endDecode();
 int getCoreBuf();
+int halt(void);
 
 // ulib.c
 int stat(char*, struct stat*);

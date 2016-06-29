@@ -38,6 +38,21 @@ fill_rect(struct Context c, unsigned int bx, unsigned int by, unsigned int width
 	}
 }
 
+void fill_rect_vertical_gradient(struct Context c, unsigned int bx, unsigned int by, unsigned int width, unsigned int height, unsigned short color1, unsigned short color2)
+{
+	int x, y;
+	int mx = c.width < bx + width ? c.width : bx + width;
+	int my = c.height < by + height ? c.height : by + height;
+	for (y = by; y < my; y++)
+	{
+		int color = color1 * (1 - ((double)(y - by) / (double)(my - by))) + color2 * ((double)(y - by) / (double)(my - by));
+		for (x = bx; x < mx; x++)
+		{
+			draw_point(c, x, y, _RGB16BIT565(color, color, color));
+		}
+	}
+}
+
 void printBinary(char c)
 {
 	int i;
