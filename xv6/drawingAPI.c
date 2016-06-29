@@ -203,6 +203,17 @@ void puts_str(struct Context c, char *str, unsigned short colorNum, int x, int y
 	}
 }
 
+void put_str(struct Context c, char ch, unsigned short colorNum, int x, int y)
+{
+	//printf(0,"puts string : %s\n", str);
+	if(ch < 0xA1) {
+		put_ascii(c, ch, colorNum, x, y);
+	}
+	else {
+		put_gbk(c, ch, colorNum, x, y);		
+	}	
+}
+
 int _RGB16BIT565(int r,int g,int b){
 	return ((b / 8)+((g / 4)<<5)+((r / 8)<<11));
 }
@@ -254,13 +265,32 @@ void draw_line(Context c, int x0, int y0, int x1, int y1, unsigned short color)
 void
 draw_window(Context c, char *title)
 {
+  PICNODE pic, edge;
+  draw_line(c, 0, 0, c.width - 1, 0, BORDERLINE_COLOR);
+  draw_line(c, c.width - 1, 0, c.width - 1, c.height - 1, BORDERLINE_COLOR);
+  draw_line(c, c.width - 1, c.height - 1, 0, c.height - 1, BORDERLINE_COLOR);
+  draw_line(c, 0, c.height - 1, 0, 0, BORDERLINE_COLOR);
+  loadBitmap(&pic, "close.bmp");
+  loadBitmap(&edge, "bar2.bmp");
+  draw_picture(c, edge, 0, 0);
+  draw_picture(c, edge, 0, c.height - 20);
+  draw_picture(c, pic, 3, 0);
+  puts_str(c, title, TITLE_COLOR, TITLE_OFFSET_X, TITLE_OFFSET_Y);
+  freepic(&pic);
+  freepic(&edge);
+}
+
+void
+draw_window2(Context c, char *title, int len, unsigned short color)
+{
   PICNODE pic;
   draw_line(c, 0, 0, c.width - 1, 0, BORDERLINE_COLOR);
   draw_line(c, c.width - 1, 0, c.width - 1, c.height - 1, BORDERLINE_COLOR);
   draw_line(c, c.width - 1, c.height - 1, 0, c.height - 1, BORDERLINE_COLOR);
   draw_line(c, 0, c.height - 1, 0, 0, BORDERLINE_COLOR);
-  fill_rect(c, 1, 1, c.width - 2, BOTTOMBAR_HEIGHT, TOPBAR_COLOR);
-  fill_rect(c, 1, c.height - 1 - BOTTOMBAR_HEIGHT, c.width - 2, BOTTOMBAR_HEIGHT, BOTTOMBAR_COLOR);
+  fill_rect(c, 1, 1, len * 8, BOTTOMBAR_HEIGHT, color);
+  fill_rect(c, 1 + len * 8, 1, c.width - 2 - len * 8, BOTTOMBAR_HEIGHT, color);
+  fill_rect(c, 1, c.height - 1 - BOTTOMBAR_HEIGHT, c.width - 2, BOTTOMBAR_HEIGHT, color);
 
   loadBitmap(&pic, "close.bmp");
   draw_picture(c, pic, 3, 3);

@@ -58,9 +58,9 @@ static uchar normalmap[256] =
   '\'', '`',  NO,   '\\', 'z',  'x',  'c',  'v',
   'b',  'n',  'm',  ',',  '.',  '/',  NO,   '*',  // 0x30
   NO,   ' ',  NO,   NO,   NO,   NO,   NO,   NO,
-  NO,   NO,   NO,   NO,   NO,   NO,   NO,   '7',  // 0x40
-  '8',  '9',  '-',  '4',  '5',  '6',  '+',  '1',
-  '2',  '3',  '0',  '.',  NO,   NO,   NO,   NO,   // 0x50
+  NO,   NO,   NO,   NO,   NO,   NO,   NO,   KEY_HOME,  // 0x40
+  KEY_UP,  KEY_PGUP,  '-',  KEY_LF,  '5',  KEY_RT,  '+',  KEY_END,
+  KEY_DN,  KEY_PGDN,  '0',  KEY_DEL,  NO,   NO,   NO,   NO,   // 0x50
   [0x9C] '\n',      // KP_Enter
   [0xB5] '/',       // KP_Div
   [0xC8] KEY_UP,    [0xD0] KEY_DN,
@@ -80,9 +80,9 @@ static uchar shiftmap[256] =
   '"',  '~',  NO,   '|',  'Z',  'X',  'C',  'V',
   'B',  'N',  'M',  '<',  '>',  '?',  NO,   '*',  // 0x30
   NO,   ' ',  NO,   NO,   NO,   NO,   NO,   NO,
-  NO,   NO,   NO,   NO,   NO,   NO,   NO,   '7',  // 0x40
-  '8',  '9',  '-',  '4',  '5',  '6',  '+',  '1',
-  '2',  '3',  '0',  '.',  NO,   NO,   NO,   NO,   // 0x50
+   NO,   NO,   NO,   NO,   NO,   NO,   NO,   KEY_HOME,  // 0x40
+  KEY_UP,  KEY_PGUP,  '-',  KEY_LF,  '5',  KEY_RT,  '+',  KEY_END,
+  KEY_DN,  KEY_PGDN,  '0',  KEY_DEL,  NO,   NO,   NO,   NO,   // 0x50
   [0x9C] '\n',      // KP_Enter
   [0xB5] '/',       // KP_Div
   [0xC8] KEY_UP,    [0xD0] KEY_DN,
@@ -101,6 +101,10 @@ static uchar ctlmap[256] =
   C('D'),  C('F'),  C('G'),  C('H'),  C('J'),  C('K'),  C('L'),  NO,
   NO,      NO,      NO,      C('\\'), C('Z'),  C('X'),  C('C'),  C('V'),
   C('B'),  C('N'),  C('M'),  NO,      NO,      C('/'),  NO,      NO,
+  NO,   ' ',  NO,   NO,   NO,   NO,   NO,   NO,
+   NO,   NO,   NO,   NO,   NO,   NO,   NO,   KEY_HOME,  // 0x40
+  KEY_UP,  KEY_PGUP,  '-',  KEY_LF,  '5',  KEY_RT,  '+',  KEY_END,
+  KEY_DN,  KEY_PGDN,  '0',  KEY_DEL,  NO,   NO,   NO,   NO,   // 0x50
   [0x9C] '\r',      // KP_Enter
   [0xB5] C('/'),    // KP_Div
   [0xC8] KEY_UP,    [0xD0] KEY_DN,
