@@ -1,0 +1,2 @@
+new codes: finder.c txtEditor_gui.c drawingAPI.h drawingAPI.c
+new sources: cty.txt cut.bmp red.bmp up1.bmp blue.bmp copy.bmp down.bmp left.bmp save.bmp black.bmp green.bmp paste.bmp right.bmp trash.bmp center.bmp choose.bmp rename.bmp rollup.bmp search.bmp rolldown.bmp file_icon_big.bmp pic_icon_big.bmp folder_icon_big.bmp music_icon_big.bmp  file_icon_small.bmp pic_icon_small.bmp folder_icon_small.bmp music_icon_small.bmp
