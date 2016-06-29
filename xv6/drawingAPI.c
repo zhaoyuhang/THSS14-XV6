@@ -1,9 +1,4 @@
-#include "types.h"
-#include "context.h"
 #include "drawingAPI.h"
-#include "user.h"
-#include "bitmap.h"
-#include "windowStyle.h"
 
 /**
 *draw_point : if the point is outside the window

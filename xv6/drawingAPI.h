@@ -9,6 +9,11 @@
 #define HZK16 "HZK16.fnt"
 
 #include "bitmap.h"
+#include "types.h"
+#include "context.h"
+#include "user.h"
+#include "bitmap.h"
+#include "windowStyle.h"
 
 struct File_Node
 {
