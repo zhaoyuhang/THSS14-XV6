@@ -10,6 +10,7 @@
 #include "windowStyle.h"
 #include "clickable.h"
 #include "fcntl.h"
+#include "tasklist.h"
 
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 450
@@ -1359,6 +1360,8 @@ int main(int argc, char *argv[]) {
 	deleteClickable(&cm.left_click, initRect(0, 0, 800, 600));
 	addWndEvent(&cm);
 	addListEvent(&cm);
+        init_tasklist();
+
 	lenOfWaited = 0;
 	while (isRun) {
 		getMsg(&msg);
@@ -1455,6 +1458,7 @@ int main(int argc, char *argv[]) {
 			break;
 		}
 	}
+//        delete_tasknode(3);
 	free_context(&context, winid);
 	exit();
 }
