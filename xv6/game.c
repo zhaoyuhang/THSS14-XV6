@@ -198,6 +198,7 @@ int main(int argc, char *argv[])
 				}
 				printf(1,"\n");
 			}
+			close(fd);
 			return 0;
 		}
 		else
@@ -220,6 +221,7 @@ int main(int argc, char *argv[])
 					info[i][j] = information[LENGTH * i + j] - '0';
 				}
 			}
+			close(fd);
 			int positionx, positiony, operation;
 			positionx = argv[1][1] - '0' - 1;
 			positiony = argv[1][3] - '0' - 1;//input is "chaetosema+1"
@@ -228,6 +230,7 @@ int main(int argc, char *argv[])
 			if(positionx < 0 || positionx >= 8 || positiony < 0 || positiony >= 8 || operation < 1 || operation > 2)
 			{
 				printf(1,"wrong input!\n");
+				close(fd);
 				return 0;
 			}
 			if(operation == 1)
@@ -297,7 +300,7 @@ int main(int argc, char *argv[])
 				}
 				else
 				{
-					printf(1,"It has digged or it has chosen and not has a landmine!");
+					printf(1,"It has digged or it has chosen and not has a landmine!\n");
 				}
 			}
 			if(leftlandminenum == 0)
@@ -378,7 +381,6 @@ int main(int argc, char *argv[])
 			fd = open("gamedata", O_WRONLY | O_CREATE);
 			if (fd < 0)
 			{
-				sleep(500);
 				printf(2, "problem in file saving, please play again\n");
 				return fd;
 			}
